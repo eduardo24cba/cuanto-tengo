@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!--
+        Customize this policy to fit your own app's needs. For more guidance, see:
+            https://github.com/apache/cordova-plugin-whitelist/blob/master/README.md#content-security-policy
+        Some notes:
+            * gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
+            * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
+            * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
+                * Enable inline JS: add 'unsafe-inline' to default-src
+        -->
+        <meta charset="utf-8">
+
+        <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self' http://www.miredbus.com.ar http://testing.cordoba.miredbus.com.ar:8282/miredbus/ data: gap: https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' http://www.miredbus.com.ar http://testing.cordoba.miredbus.com.ar:8282/miredbus/ data: content:;"> -->
+        <meta http-equiv="Content-Security-Policy" 
+        content="default-src 'self' 
+                      http://localhost:8000 
+                      http://www.miredbus.com.ar/ 
+                      https://gobiernoabierto.cordoba.gob.ar/api/v2/redbus-data/ 
+                      http://testing.cordoba.miredbus.com.ar:8282/miredbus/
+                      https://200.123.180.122:5743/ 
+                    data: 
+                    gap: https://ssl.gstatic.com 
+                      'unsafe-eval' 
+                      'unsafe-inline'; 
+                    style-src 'self' 'unsafe-inline'; 
+                    media-src *; 
+                    img-src 'self' 
+                      http://www.miredbus.com.ar 
+                      http://testing.cordoba.miredbus.com.ar:8282/miredbus/ 
+                      https://200.123.180.122:5743
+                    data: 
+                    content:;">
+
+        <meta name="format-detection" content="telephone=no">
+        <meta name="msapplication-tap-highlight" content="no">
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+
+        <!-- <link rel="stylesheet" type="text/css" href="css/index.css"> -->
+        <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="css/fuentes.css">
+        <link rel="stylesheet" type="text/css" href="css/cuanto-tengo.css">
+        <link rel="stylesheet" type="text/css" href="css/jasny-bootstrap.css">
+        <title>¿Cuánto Tengo?</title>
+
+    </head>
+    <body>
+      <nav id="myNavmenu" class="navmenu navmenu-default navmenu-fixed-left offcanvas" role="navigation">
+        <ul class="nav navmenu-nav first">
+          <li>
+            <div class="row">
+              <div class="col-xs-12">
+                <div class="side-navbar-title">
+                  <div class="row">
+                    <div class="col-xs-5">
+                      <img src="img/cuanto-tengo-texto.png" class="img-responsive img-menu-ct">
+                    </div>
+                    <div class="col-xs-6 col-xs-offset-1">
+                      <img src="img/muni-menu.png" class="img-responsive img-menu-muni">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </li>
+        </ul>
+    	  <ul class="nav navmenu-nav">
+    	    <li><a href="index.html">INICIO</a></li>
+    	  </ul>
+        <ul class="nav navmenu-nav">
+    	    <li  class="active"><a href="tarjetas.html">LISTA DE TARJETAS</a></li>
+    	  </ul>
+        <ul class="nav navmenu-nav">
+    	    <li><a href="agregar.html">AGREGAR UNA TARJETA</a></li>
+    	  </ul>
+    	  <ul class="nav navmenu-nav" style="margin: 30px 0;">
+    	    <li><a href="about.html">SOBRE ESTA APP</a></li>
+    	  </ul>
+      </nav>
+      <div class="navbar navbar-default navbar-ctengo tarjetas navbar-fixed-top">
+        <div class="container">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle" class="navbar-toggle" data-toggle="offcanvas" data-target="#myNavmenu" data-canvas="body">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand pull-right" href="#"><img src="img/cuanto-tengo-texto.png" class="logo-menu-texto"/></a>
+          </div>
+        </div>
+      </div>
+      <div class="container tarjetas-list" ng-app="cuantoTengo" ng-controller="cuantoTengoController">
+
+        <a href="agregar.html" class="add-card-button"></a>
+        <div class="row" ng-controller="tarjetasController as tgCtrl">
+          <div tarjeta data="item" ng-repeat="item in tarjetas">
+          </div>
+
+          <div class="tarjeta-blank-space col-xs-12"></div>
+        </div>
+      </div>
+        <div id="myLogs" class="hidden"></div>
+        <script type="text/javascript" src="js/jquery.min.js"></script>
+        <script type="text/javascript" src="js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="js/angular.min.js"></script>
+        <script type="text/javascript" src="js/angular-uuid.js"></script>
+
+        <script type="text/javascript" src="js/ui-bootstrap-0.14.3.js"></script>
+        <script type="text/javascript" src="cordova.js"></script>
+        <script>
+        var mayorSaldo = $("<div data-value='0'></div>");
+        function getValue(obj){
+          // console.log(obj);
+          if(obj.data('value') > mayorSaldo.data('value')){
+            mayorSaldo = obj;
+          }
+          if (obj.data('value')<0){
+            return 0.01
+          }else{
+            return (obj.data('value')/200)
+          }
+        }
+        function getColor(obj){
+          if (obj.data('value')<0){
+              obj.find('.saldo').css('color','#9b110a');
+              return '#9b110a'
+          }else{
+              obj.find('.saldo').css('color','#0A4C9B');
+              return '#0A4C9B'
+          }
+        }
+        function initializeCircles(){
+          $('.circle').each(function() {
+            initializeCircle($(this));
+          });
+          $('.grafico').each(function() {
+            var altura = $( this ).closest('.tarjetas-list-option').find('.info-tarjeta').outerHeight(false);
+            var img_h = $( this ).position().top + $( this ).outerHeight(false);
+            if (img_h < altura) {
+              $( this ).css('margin-top', (altura-img_h)/2);
+            }else{
+              $( this ).css('margin-top', 0);
+            }
+          });
+          mayorSaldo.append("<div class='saldoMayor'></div>");
+        }
+        function initializeCircle(circle){
+          circle.circleProgress({
+            value: getValue(circle),
+            size: 200,
+            startAngle: 5.5,
+            lineCap: 'round',
+            fill: {
+              color: getColor(circle)
+            }
+          });
+          circle.find('canvas').css('width', '100%');
+          circle.find('canvas').css('height', '100%');
+        }
+        </script>
+        <script type="text/javascript" src="js/credentials.js"></script>
+        <script type="text/javascript" src="js/moment.js"></script>
+
+        <script type="text/javascript" src="js/cuantoTengoApp.js"></script>
+        <script type="text/javascript" src="js/cuantoTengoController.js"></script>
+        <script type="text/javascript" src="js/modalService.js"></script>
+        <script type="text/javascript" src="js/modalModificarService.js"></script>
+        <script type="text/javascript" src="js/modalActualizarService.js"></script>
+        <script type="text/javascript" src="js/fullwModalService.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+        <script type="text/javascript" src="js/circle-progress.js"></script>
+        <script src="js/jasny-bootstrap.min.js"></script>
+
+        <script>
+        $( document ).ready(function() {
+          // if (confirm('Are you sure you want to save this thing into the database?')) {
+          //     // Save it!
+          // } else {
+          //     // Do nothing!
+          // }
+          $('.circle').each(function() {
+            initializeCircle($(this));
+          });
+          $('.grafico').each(function() {
+            var altura = $( this ).closest('.tarjetas-list-option').find('.info-tarjeta').outerHeight(false);
+            var img_h = $( this ).position().top + $( this ).outerHeight(false);
+            if (img_h < altura) {
+              $( this ).css('margin-top', (altura-img_h)/2);
+            }else{
+              $( this ).css('margin-top', 0);
+            }
+            var borrar = $(this).closest('.boton-borrar');
+            borrar.css('margin-top', ((altura-(borrar.outerHeight(false)))/2));
+          });
+          // $('.boton-borrar').each(function() {
+          //   var altura = $( this ).closest('.tarjetas-list-option').find('.info-tarjeta').outerHeight(false);
+          //   var img_h = $( this ).outerHeight(false);
+          //   $( this ).parent().css('margin-top', (altura-img_h)/2);
+          // });
+          bottom = $('.navbar.navbar-ctengo.navbar-fixed-top').position().top + $('.navbar.navbar-ctengo.navbar-fixed-top').outerHeight(true);
+  				$('body').css('padding-top', bottom);
+
+        });
+        $(window).on('resize', function(){
+          $('.grafico').each(function() {
+            var altura = $( this ).closest('.tarjetas-list-option').find('.info-tarjeta').outerHeight(false);
+            var img_h = $( this ).position().top + $( this ).outerHeight(false);
+            if (img_h < altura) {
+              $( this ).css('margin-top', (altura-img_h)/2);
+            }else{
+              $( this ).css('margin-top', 0);
+            }
+          });
+  				bottom = $('.navbar.navbar-ctengo.navbar-fixed-top').position().top + $('.navbar.navbar-ctengo.navbar-fixed-top').outerHeight(true);
+  				$('body').css('padding-top', bottom);
+  				$('#loading').hide();
+  			});
+        </script>
+    </body>
+</html>
